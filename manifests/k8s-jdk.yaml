@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jdk-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: jdk-app }
+  template:
+    metadata:
+      labels: { app: jdk-app, version: "17" }
+    spec:
+      containers:
+        - name: jdk
+          image: sa-saopaulo-1.ocir.io/granhsgcjnae/ocir_graalvm:jdk
+          imagePullPolicy: Always
+          env:
+            - name: PORT
+              value: "8080"
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jdk-svc
+spec:
+  type: ClusterIP
+  selector: { app: jdk-app }
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080

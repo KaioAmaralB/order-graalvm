@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: order-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /jdk(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: jdk-svc
+                port:
+                  number: 80
+          - path: /native(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: native-svc
+                port:
+                  number: 80

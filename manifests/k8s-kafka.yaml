@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kafka
+spec:
+  serviceName: kafka
+  replicas: 1
+  selector:
+    matchLabels: { app: kafka }
+  template:
+    metadata:
+      labels: { app: kafka }
+    spec:
+      securityContext:
+        fsGroup: 0
+        fsGroupChangePolicy: "OnRootMismatch"
+      containers:
+        - name: kafka
+          image: apache/kafka:latest
+          imagePullPolicy: Always
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+            allowPrivilegeEscalation: false
+          env:
+            - name: KAFKA_DATA_DIR
+              value: "/var/lib/kafka/data/kafka-logs"
+            - name: KAFKA_BIN
+              value: "/opt/kafka/bin"
+          ports:
+            - containerPort: 29092
+              name: internal
+            - containerPort: 9092
+              name: external
+            - containerPort: 9093
+              name: controller
+          command: ["/bin/bash", "-lc", "/entrypoint.sh"]
+          volumeMounts:
+            - name: kafka-config
+              mountPath: /etc/kafka/kraft/server.properties
+              subPath: server.properties
+            - name: kafka-config
+              mountPath: /entrypoint.sh
+              subPath: entrypoint.sh
+            - name: kafka-data
+              mountPath: /var/lib/kafka/data
+      volumes:
+        - name: kafka-config
+          configMap:
+            name: kafka-config
+            defaultMode: 0755
+  volumeClaimTemplates:
+    - metadata:
+        name: kafka-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 20Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka
+spec:
+  type: ClusterIP
+  selector: { app: kafka }
+  ports:
+    - name: internal
+      port: 29092
+      targetPort: 29092
+    - name: broker
+      port: 9092
+      targetPort: 9092
+    - name: controller
+      port: 9093
+      targetPort: 9093

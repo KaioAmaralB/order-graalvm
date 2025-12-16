@@ -1,0 +1,34 @@
+title: "GraalVM"
+schemaVersion: 1.1.0
+version: "20251130"
+locale: "pt-br"
+
+
+#################
+# Variaveis
+#################
+variableGroups:
+- title: Configuração Geral
+  visible: false
+  variables:
+  - tenancy_ocid
+  - region
+  - user_ocid
+  - fingerprint
+
+######################
+# Variable Definitions
+######################
+
+variables:
+
+  compartment_ocid: 
+    type: oci:identity:compartment:id
+    title: "Compartment"
+    description: "The compartment in which to create resources"
+    required: true
+  
+  image_ocid:
+    type: string
+    title: "OCID Image of Node Pool"
+    required: true

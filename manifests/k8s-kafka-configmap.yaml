@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kafka-config
+data:
+  server.properties: |
+    # KRaft
+    process.roles=broker,controller
+    node.id=1
+    controller.quorum.voters=1@kafka:9093
+
+    # Listeners
+    listeners=INTERNAL://0.0.0.0:29092,EXTERNAL://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+    advertised.listeners=INTERNAL://kafka:29092,EXTERNAL://kafka:9092
+    listener.security.protocol.map=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
+    inter.broker.listener.name=INTERNAL
+    controller.listener.names=CONTROLLER
+
+    # Storage
+    log.dirs=/var/lib/kafka/data/kafka-logs
+
+    # Defaults
+    num.partitions=3
+    offsets.topic.replication.factor=1
+    transaction.state.log.replication.factor=1
+    transaction.state.log.min.isr=1
+    group.initial.rebalance.delay.ms=0
+    auto.create.topics.enable=true
+
+  entrypoint.sh: |
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    CONF="/etc/kafka/kraft/server.properties"
+    DATA_DIR="${KAFKA_DATA_DIR:-/var/lib/kafka/data/kafka-logs}"
+    KAFKA_BIN="${KAFKA_BIN:-/opt/kafka/bin}"
+
+    mkdir -p "$DATA_DIR"
+
+    # Descobre a ferramenta de storage (varia por empacotamento)
+    if [[ -x "${KAFKA_BIN}/kafka-storage.sh" ]]; then
+      STORAGE="${KAFKA_BIN}/kafka-storage.sh"
+    elif [[ -x "${KAFKA_BIN}/kafka-storage" ]]; then
+      STORAGE="${KAFKA_BIN}/kafka-storage"
+    elif command -v kafka-storage >/dev/null 2>&1; then
+      STORAGE="kafka-storage"
+    else
+      echo "Não achei kafka-storage(.sh). Verifique ${KAFKA_BIN}." >&2
+      ls -la "${KAFKA_BIN}" || true
+      exit 1
+    fi
+
+    # Formata KRaft na primeira inicialização
+    if [[ ! -f "$DATA_DIR/meta.properties" ]]; then
+      CLUSTER_ID="${KAFKA_CLUSTER_ID:-$($STORAGE random-uuid)}"
+      $STORAGE format -t "$CLUSTER_ID" -c "$CONF" --ignore-formatted
+    fi
+
+    exec "${KAFKA_BIN}/kafka-server-start.sh" "$CONF"

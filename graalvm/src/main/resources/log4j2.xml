@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+  <Properties>
+    <Property name="PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p [%t] %c{1.} - %m%n</Property>
+  </Properties>
+
+  <Appenders>
+    <Console name="Console" target="SYSTEM_OUT">
+      <PatternLayout pattern="${PATTERN}"/>
+    </Console>
+  </Appenders>
+
+  <Loggers>
+    <Logger name="com.demo.graalvm" level="INFO" additivity="false">
+      <AppenderRef ref="Console"/>
+    </Logger>
+
+    <Root level="INFO">
+      <AppenderRef ref="Console"/>
+    </Root>
+  </Loggers>
+</Configuration>

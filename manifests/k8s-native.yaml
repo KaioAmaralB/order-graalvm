@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: native-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: native-app }
+  template:
+    metadata:
+      labels: { app: native-app, version: "17" }
+    spec:
+      containers:
+        - name: native
+          image: sa-saopaulo-1.ocir.io/granhsgcjnae/ocir_graalvm:graalvm
+          imagePullPolicy: Always
+          env:
+            - name: PORT
+              value: "8080"
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: native-svc
+spec:
+  type: ClusterIP
+  selector: { app: native-app }
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
