@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
         - name: jdk
-          image: sa-saopaulo-1.ocir.io/granhsgcjnae/ocir_graalvm:jdk
+          image: <REGION_CODE>.ocir.io/<NAMESPACE>/ocir_graalvm:jdk
           imagePullPolicy: Always
           env:
             - name: PORT

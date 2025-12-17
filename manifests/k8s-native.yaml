@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
         - name: native
-          image: sa-saopaulo-1.ocir.io/granhsgcjnae/ocir_graalvm:graalvm
+          image: <REGION_CODE>.ocir.io/<NAMESPACE>/ocir_graalvm:native
           imagePullPolicy: Always
           env:
             - name: PORT
