@@ -8,3 +8,8 @@ variable "description" {
   type        = string
   default     = "Created by Terraform"
 }
+
+variable "image_ocid" {
+  description = "The OCID of the node pool image"
+  type        = string
+}

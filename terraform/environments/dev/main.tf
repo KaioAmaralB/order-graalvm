@@ -104,6 +104,6 @@ module "oke_node_pool_graalvm" {
   compartment_ocid   = var.compartment_ocid
   subnet_id          = module.subnet_oke_graalvm.subnet_id
   cluster_id         = module.oke_cluster_graalvm.cluster_id
-  image_id           = "ocid1.image.oc1.sa-saopaulo-1.aaaaaaaaiycdlrwxs6zmlm5yifnb3gx43xpwmp3oivq7hpyule7f4mlqshzq"
+  image_id           = var.image_ocid
   kubernetes_version = "v1.33.1"
 }
